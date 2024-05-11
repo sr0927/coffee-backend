@@ -21,7 +21,7 @@ client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
 client.connect("54.mqttbroker.srchen.cc", 1883, 60)
-client.loop_forever()
+#client.loop_forever()
 
 app = Flask(__name__)
 SocketIO(app)
