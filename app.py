@@ -10,6 +10,7 @@ import traceback
 from re import match
 import paho.mqtt.client as mqtt
 import json  
+import os
 
 app = Flask(__name__)
 SocketIO(app)
@@ -558,4 +559,4 @@ api.add_resource(RealTemperature, '/api/RealTemperature/<string:id>')
 
 if __name__ == '__main__':
     app.debug = True
-    app.run(host='0.0.0.0', port=5000)
+    app.run(port=os.getenv("PORT", default=5000), host='0.0.0.0')
