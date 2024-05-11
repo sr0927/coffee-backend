@@ -12,15 +12,7 @@ import paho.mqtt.client as mqtt
 import json  
 import os
 
-def on_connect(client, userdata, flags, rc):
-    print("Connected with result code "+str(rc))
-    client.subscribe("class")
-def on_message(client, userdata, msg):
-    print(msg.topic+" "+ msg.payload.decode('utf-8'))
-client = mqtt.Client()
-client.on_connect = on_connect
-client.on_message = on_message
-client.connect("54.mqttbroker.srchen.cc", 1883, 60)
+
 #client.loop_forever()
 
 app = Flask(__name__)
@@ -371,6 +363,15 @@ class Components(Resource):
 
 class BrewLog(Resource):
     def post(self):
+        def on_connect(client, userdata, flags, rc):
+            print("Connected with result code "+str(rc))
+            client.subscribe("class")
+        def on_message(client, userdata, msg):
+            print(msg.topic+" "+ msg.payload.decode('utf-8'))
+        client = mqtt.Client()
+        client.on_connect = on_connect
+        client.on_message = on_message
+        client.connect("54.mqttbroker.srchen.cc", 1883, 60)
         db = conndb()
         cursor = db.cursor()
         parser = reqparse.RequestParser()
@@ -471,6 +472,15 @@ class Temperature(Resource):
         return jsonify(response)
 
     def put(self, id):
+        def on_connect(client, userdata, flags, rc):
+            print("Connected with result code "+str(rc))
+            client.subscribe("class")
+        def on_message(client, userdata, msg):
+            print(msg.topic+" "+ msg.payload.decode('utf-8'))
+        client = mqtt.Client()
+        client.on_connect = on_connect
+        client.on_message = on_message
+        client.connect("54.mqttbroker.srchen.cc", 1883, 60)
         db = conndb()
         cursor = db.cursor()
         parser = reqparse.RequestParser()
