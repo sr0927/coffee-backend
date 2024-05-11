@@ -12,6 +12,16 @@ import paho.mqtt.client as mqtt
 import json  
 import os
 
+def on_connect(client, userdata, flags, rc):
+    print("Connected with result code "+str(rc))
+    client.subscribe("class")
+def on_message(client, userdata, msg):
+    print(msg.topic+" "+ msg.payload.decode('utf-8'))
+client = mqtt.Client()
+client.on_connect = on_connect
+client.on_message = on_message
+client.connect("54.mqttbroker.srchen.cc", 1883, 60)
+
 app = Flask(__name__)
 SocketIO(app)
 api = Api(app)
@@ -360,15 +370,6 @@ class Components(Resource):
 
 class BrewLog(Resource):
     def post(self):
-        def on_connect(client, userdata, flags, rc):
-            print("Connected with result code "+str(rc))
-            client.subscribe("class")
-        def on_message(client, userdata, msg):
-            print(msg.topic+" "+ msg.payload.decode('utf-8'))
-        client = mqtt.Client()
-        client.on_connect = on_connect
-        client.on_message = on_message
-        client.connect("54.mqttbroker.srchen.cc", 1883, 60)
         db = conndb()
         cursor = db.cursor()
         parser = reqparse.RequestParser()
@@ -391,7 +392,18 @@ class BrewLog(Resource):
             'temperature' : arg['temperature'],
             'air_pressure' : arg['air_pressure'],
         }
-        client.publish("class", json.dumps(brewlog))
+        mqttmessage = {
+            'action' : 'brew',
+            'brew_timestamp' : arg['brew_timestamp'],
+            'brew_date' : arg['brew_date'], 
+            'capsule_type' : arg['capsule_type'],
+            'user_id' : arg['user_id'],
+            'machine_id' : arg['machine_id'],
+            'Water_volume' : arg['Water_volume'],
+            'temperature' : arg['temperature'],
+            'air_pressure' : arg['air_pressure'],
+        }
+        client.publish("class", json.dumps(mqttmessage))
         sql = """
             INSERT INTO brew_log (brew_timestamp, brew_date, capsule_type, user_id, machine_id, Water_volume, temperature, air_pressure) VALUES ('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')
               """.format(brewlog['brew_timestamp'], brewlog['brew_date'], brewlog['capsule_type'], brewlog['user_id'], brewlog['machine_id'], brewlog['Water_volume'], brewlog['temperature'], brewlog['air_pressure'])
@@ -466,6 +478,11 @@ class Temperature(Resource):
         temperature = {
             'temperature' : arg['temperature']
         }
+        mqttmessage = {
+            'action' : 'set_temperature',
+            'temperature' : arg['temperature']
+        }
+        client.publish("class", json.dumps(mqttmessage))
         sql = """
             UPDATE machineregister SET temperature = '{}' WHERE machine_id = '{}'
               """.format(temperature['temperature'], id)
