@@ -33,7 +33,7 @@ def createSerialNumber():
 
 def conndb():
     db = psycopg2.connect(database="coffeeDB", user="postgres", 
-                          password="changeme", host="172.233.72.40", 
+                          password="changeme", host="", 
                           port="5432")
     return db
     
